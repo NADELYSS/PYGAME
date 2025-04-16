@@ -47,16 +47,27 @@ shop_close_button = pygame.Rect(shop_window.right - 40, shop_window.top + 10, 20
 player = pygame.Rect(100, 100, 32, 32)
 player_speed = 5
 
+# --- 이미지 로드 및 잘라내기 ---
+tool_img = pygame.image.load("miner_game/asset/tools_detailed_by_Brysia.png").convert_alpha()
+
+mineral_icons = {
+    "돌": tool_img.subsurface(pygame.Rect(16, 0, 16, 16)),  # 부서진 돌 (2열 0행)
+    "철": tool_img.subsurface(pygame.Rect(16, 16, 16, 16)),  # 부서진 철 (2열 1행)
+}
+
+mineral_ground_icons = {
+    "돌": tool_img.subsurface(pygame.Rect(0, 0, 16, 16)),   # 돌 (1열 0행)
+    "철": tool_img.subsurface(pygame.Rect(0, 16, 16, 16)),  # 철 (1열 1행)
+}
+
 # --- 광물 클래스 ---
 class Mineral:
-    def __init__(self, name, color, rect, hp):
+    def __init__(self, name, rect, hp):
         self.name = name
-        self.color = color
         self.rect = rect
         self.hp = hp
 
 mineral_names = ["돌", "철"]
-mineral_colors = {"돌": GRAY_ROCK, "철": YELLOW}
 mineral_hps = {"돌": 1, "철": 2}
 mineral_prices = {"돌": 1, "철": 2}
 mineral_weights = [80, 20]
@@ -69,14 +80,13 @@ inventory = {"돌": [], "철": []}
 def create_mineral():
     for _ in range(5):
         name = random.choices(mineral_names, weights=mineral_weights)[0]
-        color = mineral_colors[name]
         hp = mineral_hps[name]
         x = random.randint(0, 770)
         y = random.randint(0, 570)
         new_rect = pygame.Rect(x, y, 30, 30)
         if player.colliderect(new_rect): continue
         if any(m.rect.colliderect(new_rect) for m in minerals): continue
-        minerals.append(Mineral(name, color, new_rect, hp))
+        minerals.append(Mineral(name, new_rect, hp))
         break
 
 # --- 초기 광물 생성 ---
@@ -153,7 +163,6 @@ while running:
                         total = sum(inventory[name])
                         if count > 0 and total >= count:
                             gold += mineral_prices[name] * count
-                            # 인벤토리에서 count만큼 제거
                             removed = 0
                             new_stacks = []
                             for stack in inventory[name]:
@@ -180,7 +189,8 @@ while running:
     # --- 광물 그리기 ---
     if current_map == "광산":
         for m in minerals:
-            pygame.draw.rect(screen, m.color, m.rect)
+            icon = pygame.transform.scale(mineral_ground_icons[m.name], (30, 30))
+            screen.blit(icon, m.rect.topleft)
             max_hp = mineral_hps[m.name]
             hp_ratio = m.hp / max_hp
             if hp_ratio >= 0.7: bar_color = (0, 200, 0)
@@ -228,7 +238,9 @@ while running:
                 col = index % 5
                 slot_x = start_x + col * (slot_size + margin)
                 slot_y = start_y + row * (slot_size + margin)
-                pygame.draw.rect(screen, mineral_colors[name], (slot_x, slot_y, slot_size, slot_size))
+                pygame.draw.rect(screen, (30, 30, 30), (slot_x, slot_y, slot_size, slot_size))
+                icon = pygame.transform.scale(mineral_icons[name], (32, 32))
+                screen.blit(icon, (slot_x + 4, slot_y + 4))
                 label = small_font.render(f"{name} {count}개", True, WHITE)
                 screen.blit(label, label.get_rect(center=(slot_x + 20, slot_y + 50)))
                 index += 1
@@ -242,8 +254,9 @@ while running:
 
         for i, name in enumerate(mineral_names):
             base_y = shop_window.y + 60 + i * 60
-            screen.blit(font.render(name, True, WHITE), (shop_window.x + 20, base_y))
-            screen.blit(small_font.render(f"판매가: {mineral_prices[name]}골드", True, WHITE), (shop_window.x + 120, base_y))
+            icon = pygame.transform.scale(mineral_icons[name], (32, 32))
+            screen.blit(icon, (shop_window.x + 20, base_y))
+            screen.blit(small_font.render(f"판매가: {mineral_prices[name]}골드", True, WHITE), (shop_window.x + 70, base_y))
             screen.blit(small_font.render(f"선택: {sell_selection[name]}", True, WHITE), (shop_window.x + 200, base_y + 20))
 
             pygame.draw.rect(screen, GRAY, (shop_window.x + 300, base_y, 30, 30))
