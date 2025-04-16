@@ -23,6 +23,11 @@ ORANGE = (255, 140, 0)
 current_map = "광산"
 map_select_open = False
 inventory_open = False
+shop_open = False
+
+# --- 게임 상태 ---
+gold = 0
+sell_selection = {"돌": 0, "철": 0}
 
 # --- 창 위치 설정 ---
 inventory_rect = pygame.Rect(250, 150, 300, 200)
@@ -35,6 +40,8 @@ village_button = pygame.Rect(map_rect.x + 230, map_rect.y + 100, 120, 80)
 # --- 마을 내 요소 ---
 shop_rect = pygame.Rect(200, 200, 150, 100)
 forge_rect = pygame.Rect(450, 200, 150, 100)
+shop_window = pygame.Rect(150, 100, 500, 300)
+shop_close_button = pygame.Rect(shop_window.right - 40, shop_window.top + 10, 20, 20)
 
 # --- 플레이어 설정 ---
 player = pygame.Rect(100, 100, 32, 32)
@@ -51,7 +58,8 @@ class Mineral:
 mineral_names = ["돌", "철"]
 mineral_colors = {"돌": GRAY_ROCK, "철": YELLOW}
 mineral_hps = {"돌": 1, "철": 2}
-mineral_weights = [70, 30]
+mineral_prices = {"돌": 1, "철": 2}
+mineral_weights = [80, 20]
 minerals = []
 
 # --- 인벤토리 상태 ---
@@ -90,18 +98,22 @@ while running:
         elif event.type == SPAWN_EVENT and current_map == "광산":
             create_mineral()
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE and current_map == "광산":
-                for m in minerals:
-                    if player.colliderect(m.rect):
-                        m.hp -= 1
-                        if m.hp <= 0:
-                            stacks = inventory[m.name]
-                            if not stacks or stacks[-1] >= 99:
-                                stacks.append(1)
-                            else:
-                                stacks[-1] += 1
-                            minerals.remove(m)
-                        break
+            if event.key == pygame.K_SPACE:
+                if current_map == "광산":
+                    for m in minerals:
+                        if player.colliderect(m.rect):
+                            m.hp -= 1
+                            if m.hp <= 0:
+                                stacks = inventory[m.name]
+                                if not stacks or stacks[-1] >= 99:
+                                    stacks.append(1)
+                                else:
+                                    stacks[-1] += 1
+                                minerals.remove(m)
+                            break
+                elif current_map == "마을" and player.colliderect(shop_rect):
+                    shop_open = True
+                    sell_selection = {"돌": 0, "철": 0}
             elif event.key == pygame.K_i:
                 inventory_open = not inventory_open
             elif event.key == pygame.K_m:
@@ -118,6 +130,43 @@ while running:
                 elif village_button.collidepoint(event.pos):
                     current_map = "마을"
                     map_select_open = False
+            if shop_open:
+                if shop_close_button.collidepoint(event.pos):
+                    shop_open = False
+                for i, name in enumerate(mineral_names):
+                    base_y = shop_window.y + 60 + i * 60
+                    plus = pygame.Rect(shop_window.x + 300, base_y, 30, 30)
+                    minus = pygame.Rect(shop_window.x + 340, base_y, 30, 30)
+                    maxbtn = pygame.Rect(shop_window.x + 380, base_y, 50, 30)
+                    sellbtn = pygame.Rect(shop_window.x + 440, base_y, 50, 30)
+                    if plus.collidepoint(event.pos):
+                        total = sum(inventory[name]) if name in inventory else 0
+                        if sell_selection[name] < total:
+                            sell_selection[name] += 1
+                    elif minus.collidepoint(event.pos):
+                        if sell_selection[name] > 0:
+                            sell_selection[name] -= 1
+                    elif maxbtn.collidepoint(event.pos):
+                        sell_selection[name] = sum(inventory[name])
+                    elif sellbtn.collidepoint(event.pos):
+                        count = sell_selection[name]
+                        total = sum(inventory[name])
+                        if count > 0 and total >= count:
+                            gold += mineral_prices[name] * count
+                            # 인벤토리에서 count만큼 제거
+                            removed = 0
+                            new_stacks = []
+                            for stack in inventory[name]:
+                                if removed + stack <= count:
+                                    removed += stack
+                                    continue
+                                elif removed < count:
+                                    new_stacks.append(stack - (count - removed))
+                                    removed = count
+                                else:
+                                    new_stacks.append(stack)
+                            inventory[name] = new_stacks
+                            sell_selection[name] = 0
 
     # --- 키 입력 ---
     keys = pygame.key.get_pressed()
@@ -144,7 +193,6 @@ while running:
             pygame.draw.rect(screen, (80, 80, 80), (bar_x, bar_y, bar_width, bar_height))
             pygame.draw.rect(screen, bar_color, (bar_x, bar_y, bar_width * hp_ratio, bar_height))
 
-    # --- 마을 UI ---
     elif current_map == "마을":
         pygame.draw.rect(screen, ORANGE, shop_rect)
         pygame.draw.rect(screen, BROWN, forge_rect)
@@ -157,6 +205,10 @@ while running:
     # --- 현재 맵 출력 ---
     map_name_text = font.render(f"현재 위치: {current_map}", True, WHITE)
     screen.blit(map_name_text, map_name_text.get_rect(center=(400, 30)))
+
+    # --- 골드 출력 ---
+    gold_text = small_font.render(f"골드: {gold}", True, WHITE)
+    screen.blit(gold_text, (10, 570))
 
     # --- 인벤토리 UI ---
     if inventory_open:
@@ -180,6 +232,31 @@ while running:
                 label = small_font.render(f"{name} {count}개", True, WHITE)
                 screen.blit(label, label.get_rect(center=(slot_x + 20, slot_y + 50)))
                 index += 1
+
+    # --- 상점 UI ---
+    if shop_open:
+        pygame.draw.rect(screen, (20, 20, 60), shop_window)
+        pygame.draw.rect(screen, WHITE, shop_window, 2)
+        pygame.draw.rect(screen, (100, 0, 0), shop_close_button)
+        screen.blit(font.render("X", True, WHITE), font.render("X", True, WHITE).get_rect(center=shop_close_button.center))
+
+        for i, name in enumerate(mineral_names):
+            base_y = shop_window.y + 60 + i * 60
+            screen.blit(font.render(name, True, WHITE), (shop_window.x + 20, base_y))
+            screen.blit(small_font.render(f"판매가: {mineral_prices[name]}골드", True, WHITE), (shop_window.x + 120, base_y))
+            screen.blit(small_font.render(f"선택: {sell_selection[name]}", True, WHITE), (shop_window.x + 200, base_y + 20))
+
+            pygame.draw.rect(screen, GRAY, (shop_window.x + 300, base_y, 30, 30))
+            screen.blit(font.render("+", True, BLACK), (shop_window.x + 308, base_y))
+
+            pygame.draw.rect(screen, GRAY, (shop_window.x + 340, base_y, 30, 30))
+            screen.blit(font.render("-", True, BLACK), (shop_window.x + 348, base_y - 2))
+
+            pygame.draw.rect(screen, GRAY, (shop_window.x + 380, base_y, 50, 30))
+            screen.blit(small_font.render("최대", True, BLACK), (shop_window.x + 385, base_y + 5))
+
+            pygame.draw.rect(screen, YELLOW, (shop_window.x + 440, base_y, 50, 30))
+            screen.blit(small_font.render("판매", True, BLACK), (shop_window.x + 448, base_y + 5))
 
     # --- 지도 선택 창 ---
     if map_select_open:
