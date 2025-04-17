@@ -22,9 +22,9 @@ class Player:
 
         # 🎞️ 애니메이션 프레임 등록
         self.animations = {
-            "idle": load_animation("miner_game/asset/player/idle_strip3.png", 3),
-            "walk": load_animation("miner_game/asset/player/walk_strip8.png", 8),
-            "mine": load_animation("miner_game/asset/player/pickaxe_strip5.png", 5)
+            "idle": load_animation("./asset/player/idle_strip3.png", 3),
+            "walk": load_animation("./asset/player/walk_strip8.png", 8),
+            "mine": load_animation("./asset/player/pickaxe_strip5.png", 5)
         }
         self.frame_index = 0
         self.animation_speed = 0.15

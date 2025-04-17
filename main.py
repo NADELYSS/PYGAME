@@ -47,12 +47,12 @@ mineral_ground_icons = {
 }
 
 shop_dog_frames = {
-    "sleep": [pygame.image.load("miner_game/asset/store/sleep1.png"),
-              pygame.image.load("miner_game/asset/store/sleep2.png")],
-    "lay": [pygame.image.load("miner_game/asset/store/lay1.png"),
-            pygame.image.load("miner_game/asset/store/lay2.png")],
-    "sit": [pygame.image.load("miner_game/asset/store/sit1.png"),
-            pygame.image.load("miner_game/asset/store/sit2.png")]
+    "sleep": [pygame.image.load("./asset/store/sleep1.png"),
+            pygame.image.load("./asset/store/sleep2.png")],
+    "lay": [pygame.image.load("./asset/store/lay1.png"),
+            pygame.image.load("./asset/store/lay2.png")],
+    "sit": [pygame.image.load("./asset/store/sit1.png"),
+            pygame.image.load("./asset/store/sit2.png")]
 }
 
 # 객체 초기화
