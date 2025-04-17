@@ -20,5 +20,5 @@ PLAYER_SIZE = 30        # 플레이어 크기 (정사각형)
 MINERAL_SIZE = 30       # 광물 크기 (정사각형)
 
 # 🗂️ 파일 경로 설정
-FONT_PATH = "miner_game/fonts/NanumGothic.ttf"   # 한글 폰트 경로
-ASSET_PATH = "miner_game/asset/tools_detailed_by_Brysia.png"  # 광물 및 장비 이미지 에셋
+FONT_PATH = "./fonts/NanumGothic.ttf"   # 한글 폰트 경로
+ASSET_PATH = "./asset/tools_detailed_by_Brysia.png"  # 광물 및 장비 이미지 에셋
