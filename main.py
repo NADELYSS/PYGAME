@@ -5,7 +5,10 @@ from player import Player
 from ui_inventory import draw_inventory
 from ui_map import draw_map_selection
 from ui_shop import draw_shop
-from shop_dog import update_and_draw_dog
+from shop_dog import update_and_draw_dog, shop_dog_frames
+from ui_process import inventory_rect, close_button, map_rect, map_close_button, mine_button, village_button, shop_rect, forge_rect, shop_window, shop_close_button
+# from smith_crate import update_and_draw_crate, handle_smith_event
+
 
 # 초기 설정
 pygame.init()
@@ -23,18 +26,6 @@ shop_open = [False]
 gold = 0
 sell_selection = {name: 0 for name in mineral_names}
 
-# UI 영역
-inventory_rect = pygame.Rect(250, 150, 300, 200)
-close_button = pygame.Rect(inventory_rect.right - 40, inventory_rect.top + 10, 20, 20)
-map_rect = pygame.Rect(200, 120, 400, 300)
-map_close_button = pygame.Rect(map_rect.right - 40, map_rect.top + 10, 20, 20)
-mine_button = pygame.Rect(map_rect.x + 50, map_rect.y + 100, 120, 80)
-village_button = pygame.Rect(map_rect.x + 230, map_rect.y + 100, 120, 80)
-shop_rect = pygame.Rect(200, 200, 150, 100)
-forge_rect = pygame.Rect(450, 200, 150, 100)
-shop_window = pygame.Rect(150, 100, 500, 300)
-shop_close_button = pygame.Rect(shop_window.right - 40, shop_window.top + 10, 20, 20)
-
 # 이미지 로드
 tool_img = pygame.image.load(ASSET_PATH).convert_alpha()
 mineral_icons = {
@@ -44,15 +35,6 @@ mineral_icons = {
 mineral_ground_icons = {
     "돌": tool_img.subsurface(pygame.Rect(0, 0, 16, 16)),
     "철": tool_img.subsurface(pygame.Rect(0, 16, 16, 16)),
-}
-
-shop_dog_frames = {
-    "sleep": [pygame.image.load("./asset/store/sleep1.png"),
-            pygame.image.load("./asset/store/sleep2.png")],
-    "lay": [pygame.image.load("./asset/store/lay1.png"),
-            pygame.image.load("./asset/store/lay2.png")],
-    "sit": [pygame.image.load("./asset/store/sit1.png"),
-            pygame.image.load("./asset/store/sit2.png")]
 }
 
 # 객체 초기화
