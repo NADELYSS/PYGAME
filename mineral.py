@@ -16,6 +16,8 @@ mineral_weights = [80, 20]  # 생성 확률: 돌 80%, 철 20%
 
 # 🎯 광물 생성 함수
 def create_mineral(player_rect, minerals):
+    if len(minerals) >= 20:
+        return  # ✅ 맵에 광물이 20개 이상이면 리젠 중지
     for _ in range(5):
         name = random.choices(mineral_names, weights=mineral_weights)[0]
         hp = mineral_hps[name]
