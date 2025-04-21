@@ -10,7 +10,7 @@ class Mineral:
 
 # 광물 기본 속성
 mineral_names = ["돌", "철"]
-mineral_hps = {"돌": 1, "철": 2}
+mineral_hps = {"돌": 10, "철": 15}
 mineral_prices = {"돌": 1, "철": 2}
 mineral_weights = [80, 20]  # 생성 확률: 돌 80%, 철 20%
 
