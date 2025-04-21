@@ -5,6 +5,16 @@ from mineral import mineral_names
 dog_state = "sleep"
 dog_frame_index = 0
 
+# 이미지 로드
+shop_dog_frames = {
+    "sleep": [pygame.image.load("./asset/store/sleep1.png"),
+            pygame.image.load("./asset/store/sleep2.png")],
+    "lay": [pygame.image.load("./asset/store/lay1.png"),
+            pygame.image.load("./asset/store/lay2.png")],
+    "sit": [pygame.image.load("./asset/store/sit1.png"),
+            pygame.image.load("./asset/store/sit2.png")]
+}
+
 # 강아지 상태 갱신 및 화면 출력 함수
 def update_and_draw_dog(screen, player, shop_rect, shop_dog_frames, event, current_map, shop_open, sell_selection):
     global dog_state, dog_frame_index

@@ -1,7 +1,6 @@
 import pygame
 
-def draw_shop(screen, font, small_font, shop_window, shop_close_button, sell_selection,
-            inventory, mineral_names, mineral_prices, mineral_icons):
+def draw_shop(screen, font, small_font, shop_window, shop_close_button, sell_selection, inventory, mineral_names, mineral_prices, mineral_icons):
     # 상점 창
     pygame.draw.rect(screen, (10, 10, 60), shop_window)
     pygame.draw.rect(screen, (255, 255, 255), shop_window, 2)
